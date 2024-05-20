@@ -1,8 +1,6 @@
 #include <iostream>
 
-using namespace std;
-
 int main() {
-  cout << "Hello World, I am can now program on Visual Studio Code" << endl;
+  std::cout << "Hello World, I am can now program on Visual Studio Code" << std::endl;
   return 0;
 }
