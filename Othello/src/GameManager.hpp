@@ -3,6 +3,7 @@
 
 #include "Player.hpp"
 #include <iostream>
+#include <memory>
 
 class GameManager {
   public:
@@ -17,8 +18,8 @@ class GameManager {
   private:
   bool InitializePlayers();
   bool isGameComplete = false;
-  Player* player1_ptr {};
-  Player* player2_ptr {};
+  std::shared_ptr<Player> player1_ptr {};
+  std::shared_ptr<Player> player2_ptr {};
   
 };
 
