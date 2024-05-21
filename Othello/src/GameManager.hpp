@@ -3,6 +3,8 @@
 
 #include "Player.hpp"
 #include <iostream>
+#include <cstring>
+#include <cctype>
 #include <memory>
 
 class GameManager {
@@ -10,17 +12,27 @@ class GameManager {
     GameManager();
     ~GameManager();
   
+    //Methods
     bool StartGame();
+    bool Update();
+    bool PrintGameboard();
 
     //Properties
     bool GetIsGameComplete();
 
   private:
-  bool InitializePlayers();
-  bool isGameComplete = false;
-  std::shared_ptr<Player> player1_ptr {};
-  std::shared_ptr<Player> player2_ptr {};
-  
+    //Fields
+    bool _isGameComplete = false;
+    bool _isPlayer1Turn = true;
+    std::shared_ptr<Player> _player1_ptr {};
+    std::shared_ptr<Player> _player2_ptr {};
+    char _othello_gameboard[8][8];
+
+    //Methods
+    bool InitializePlayers();
+    bool InsertPlayerPieceByCoordinates(const std::string &placement_coordinates, const std::shared_ptr<Player> &current_player_ptr);
+    bool InsertPieceByIndex(int row, int column, char piece);
+    std::string AskPlayerForPlacementCoordinates(const std::shared_ptr<Player> &current_player_ptr);
 };
 
 #endif

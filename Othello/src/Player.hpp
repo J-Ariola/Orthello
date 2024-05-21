@@ -12,6 +12,9 @@ class Player {
       return "player name: " + _name + "\npiece char" + _piece;
     }
 
+    //Properties
+    char GetPiece();
+    std::string GetName();
 
     private:
       std::string _name;

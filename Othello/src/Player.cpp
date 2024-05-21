@@ -11,3 +11,6 @@ Player::Player(std::string name_val, char piece_char)
         std::cout << "Player " << _name << " initialized with char " << _piece << std::endl;
     }
 Player::~Player() { std::cout << "Player " << _name << " deconstructed" << std::endl; }
+
+char Player::GetPiece() { return _piece; }
+std::string Player::GetName() { return _name; }
