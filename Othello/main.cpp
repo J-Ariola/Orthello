@@ -13,9 +13,9 @@ int main () {
     return 1;
   }
 
-  gm_ptr->Update();
-
-  // gm_ptr->PrintGameboard();
+  while (!gm_ptr->GetIsGameComplete()){
+    gm_ptr->Update();
+  }
 
   gm_ptr = nullptr;
   std::cout << "REACHED END OF PROGRAM SAFELY" << std::endl;
