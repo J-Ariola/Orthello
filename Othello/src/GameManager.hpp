@@ -45,10 +45,18 @@ class GameManager {
 
     //Methods
     bool InitializePlayers();
-    bool InsertPlayerPieceByCoordinates(const std::string &placement_coordinates_string, const std::shared_ptr<Player> &current_player_ptr);
+    bool InsertPlayerPieceByCoordinates(const std::string &placement_coordinates_string, const std::shared_ptr<Player> &current_player_ptr, const bool is_setting_up = false);
     bool InsertPieceByIndex(int row, int column, char piece);
     std::string AskPlayerForPlacementCoordinates(const std::shared_ptr<Player> &current_player_ptr);
     bool PrintVectorOfCoordinates (const std::vector<BoardCoordinateUtils::coordinates> &vec);
+    bool AddCoordinatesByIncrementDirection(
+      std::vector<BoardCoordinateUtils::coordinates> &possible_to_place_coordinates, 
+      const BoardCoordinateUtils::coordinates &startingCoordinates, 
+      const char &current_player_piece,
+      const char &opposing_player_piece,
+      int increment_col_val = 0, 
+      int increment_row_val = 0
+    );
 };
 
 
