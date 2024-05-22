@@ -68,9 +68,16 @@ bool GameManager::Update() {
 
       InsertPlayerPieceByCoordinates(input_coordinates, current_player_ptr);
       current_player_ptr = _player2_ptr;
+      _current_state = GameState::UpdateBoard;
+      break;
+    }
+    
+    case GameState::UpdateBoard: {
+      _isPlayer1Turn = !_isPlayer1Turn;
       _current_state = GameState::AnalyzeBoard;
       break;
     }
+
   }
   return true;
 }
