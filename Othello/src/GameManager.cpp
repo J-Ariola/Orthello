@@ -26,13 +26,34 @@ bool GameManager::StartGame() {
   InsertPlayerPieceByCoordinates("E5", _player2_ptr);
 
   PrintGameboard();
+  _current_state = GameState::AnalyzeBoard;
+  _current_player_ptr = _player1_ptr;
   return true;
 }
 
 bool GameManager::Update() {
-  std::shared_ptr<Player> current_player_ptr = (_isPlayer1Turn) ? _player1_ptr : _player2_ptr;
+  switch (_current_state)
+  {
+    case GameState::AnalyzeBoard: 
 
-  AskPlayerForPlacementCoordinates(current_player_ptr);
+    break;
+
+    case GameState::PrintBoard:
+
+    break;    
+
+    case GameState::PlayerTurn:
+
+    break;
+
+    case GameState::UpdateBoard:
+    
+    break;
+  }
+
+  std::string input_coordintates = AskPlayerForPlacementCoordinates(current_player_ptr);
+  InsertPlayerPieceByCoordinates(input_coordintates,current_player_ptr);
+  PrintGameboard();
   return true;
 }
 
@@ -74,8 +95,8 @@ bool GameManager::InitializePlayers() {
 
 //TODO: Print the Orthello Game board with grid indicators
 bool GameManager::PrintGameboard() {
-  const int row_length = sizeof(_othello_gameboard) / sizeof(_othello_gameboard[0]);
-  const int column_length = sizeof(_othello_gameboard[0]) / sizeof(_othello_gameboard[0][0]);
+  const int row_length = BOARD_LENGTH;
+  const int column_length = BOARD_LENGTH;
   const char alpha_indicators[8] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
   const signed int HORIZONTAL_SPACE = 4;
   const char LINE_CHAR{'='};
@@ -108,28 +129,38 @@ bool GameManager::PrintGameboard() {
   return true;
 }
 
-bool GameManager::InsertPlayerPieceByCoordinates(const std::string &placement_coordinates, const std::shared_ptr<Player> &current_player_ptr) {
-  BoardCoordinateUtils::coordinates coordinates = BoardCoordinateUtils::StringCoordinatesToArrayIndeces(placement_coordinates);
+bool GameManager::InsertPlayerPieceByCoordinates(const std::string &placement_coordinates_string, const std::shared_ptr<Player> &current_player_ptr) {
+  BoardCoordinateUtils::coordinates coordinates = BoardCoordinateUtils::StringCoordinatesToArrayIndeces(placement_coordinates_string);
   std::cout << "Inserting " << current_player_ptr->GetName() << ": " << current_player_ptr->GetPiece() 
-  << " into " << coordinates.x << " " << coordinates.y << std::endl;
+  << " into [" << coordinates.x << ", " << coordinates.y << "]" << std::endl;
+
+  if (coordinates.x >= BOARD_LENGTH || coordinates.y >= BOARD_LENGTH) return false;
 
   _othello_gameboard[coordinates.x][coordinates.y] = current_player_ptr->GetPiece();
 
-  return false;
+  return true;
 }
 
 bool GameManager::GetIsGameComplete() {
   return _isGameComplete;
 }
 
+
 std::string GameManager::AskPlayerForPlacementCoordinates(const std::shared_ptr<Player> &current_player_ptr) {
   std::string input_coordinates{};
+  bool isValidInput{false};
 
+  while (!isValidInput) {
   std::cout << "Player " << current_player_ptr->GetName() << ", enter the coordinates (EX. \"D3\") of the grid where you want to play: ";
   std::cin >> input_coordinates;
+  
+  isValidInput = BoardCoordinateUtils::IsValidCoordinates(input_coordinates);
+    if (!isValidInput) {
+      std::cout << "Invalid input. Please try again " << current_player_ptr->GetName() << std::endl;
+    }
+  }
+  input_coordinates[0] = std::toupper(input_coordinates[0]);
+  std::cout << "User input: " << input_coordinates << std::endl;
 
-  bool isInvalidInput = (input_coordinates.length() == 2 && std::isalpha(input_coordinates[0]) && std::isdigit(input_coordinates[1]));
-
-  std::cout << "User input: " << input_coordinates << " " <<std::boolalpha << isInvalidInput << std::endl;
-  return "";
+  return input_coordinates;
 }

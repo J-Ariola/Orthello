@@ -18,5 +18,6 @@ int main () {
   // gm_ptr->PrintGameboard();
 
   gm_ptr = nullptr;
+  std::cout << "REACHED END OF PROGRAM SAFELY" << std::endl;
   return 0;
 }

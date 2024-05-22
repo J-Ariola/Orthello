@@ -7,10 +7,8 @@
  * */
 
 Player::Player(std::string name_val, char piece_char)
-    :_name{name_val}, _piece{piece_char} {
-        std::cout << "Player " << _name << " initialized with char " << _piece << std::endl;
-    }
-Player::~Player() { std::cout << "Player " << _name << " deconstructed" << std::endl; }
+    :_name{name_val}, _piece{piece_char} { }
+Player::~Player() {}
 
 char Player::GetPiece() { return _piece; }
 std::string Player::GetName() { return _name; }

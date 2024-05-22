@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <map>
+#include <cctype>
 
 namespace BoardCoordinateUtils {
 
@@ -23,10 +24,19 @@ namespace BoardCoordinateUtils {
     int y;
   };
 
-  coordinates static inline StringCoordinatesToArrayIndeces (const std::string &placement_coordinates) {
-    std::cout << "Placement Coordinates " << placement_coordinates.at(0) << " " << placement_coordinates.at(1) << std::endl;
-    int x_val = placement_coordinates.at(1) - '1'; // Counters ASCII
-    int y_val = string_to_int_map.at(placement_coordinates.at(0));
+  bool static inline IsValidCoordinates (const std::string &placement_coordinates_string) {
+    if ( placement_coordinates_string.length() != 2 || 
+    !std::isalpha(placement_coordinates_string.at(0)) || 
+    !std::isdigit(placement_coordinates_string.at(1)) ) {
+      return false;
+    }
+    return true;
+  };
+
+  coordinates static inline StringCoordinatesToArrayIndeces (const std::string &placement_coordinates_string) {
+    std::cout << "Placement Coordinates " << placement_coordinates_string.at(0) << " " << placement_coordinates_string.at(1) << std::endl;
+    int x_val = placement_coordinates_string.at(1) - '1'; // Counters ASCII
+    int y_val = std::toupper(string_to_int_map.at(placement_coordinates_string.at(0)));
     coordinates resultCoords;
 
     resultCoords.x = x_val;
