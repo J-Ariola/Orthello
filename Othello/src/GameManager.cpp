@@ -35,7 +35,6 @@ bool GameManager::StartGame() {
 
   
 
-
   _current_state = GameState::AnalyzeBoard;
   _current_player_ptr = _player1_ptr;
   return true;
