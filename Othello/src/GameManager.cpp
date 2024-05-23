@@ -11,18 +11,29 @@ GameManager::~GameManager() {
 }
 
 bool GameManager::StartGame() {
-  InitializePlayers();
+  InitializePlayers(true);
 
   //No player info
   if(!_player1_ptr || !_player2_ptr) return false;
 
   //_player_1 starting pieces
   InsertPlayerPieceByCoordinates("E4", _player1_ptr, true);
-  InsertPlayerPieceByCoordinates("D5", _player1_ptr, true);
+  // InsertPlayerPieceByCoordinates("D5", _player1_ptr, true);
 
   //_player_2 starting pieces
   InsertPlayerPieceByCoordinates("D4", _player2_ptr, true);
-  InsertPlayerPieceByCoordinates("E5", _player2_ptr, true);
+  // InsertPlayerPieceByCoordinates("E5", _player2_ptr, true);
+
+  InsertPlayerPieceByCoordinates("C6", _player2_ptr, true);
+  InsertPlayerPieceByCoordinates("C7", _player2_ptr, true);
+  InsertPlayerPieceByCoordinates("C8", _player2_ptr, true);
+  
+  InsertPlayerPieceByCoordinates("D5", _player2_ptr, true);
+  InsertPlayerPieceByCoordinates("E5", _player1_ptr, true);
+
+
+
+  
 
 
   _current_state = GameState::AnalyzeBoard;
@@ -398,17 +409,19 @@ std::vector<BoardCoordinateUtils::coordinates> GameManager::GetPiecesToFlipCoord
           (row >= 0 && row < BOARD_LENGTH) && (col >= 0 && col < BOARD_LENGTH);
           row += increment_row_val, col += increment_col_val) {
           char current_piece = _othello_gameboard[row][col];
+          
+
           if (current_piece == current_player_piece) return result_coordinates;
           if (current_piece == opposing_player_piece) {
+            if (row + increment_row_val < 0 || row + increment_row_val == BOARD_LENGTH) return std::vector<BoardCoordinateUtils::coordinates> {};
+            if (col + increment_col_val < 0 || col + increment_col_val == BOARD_LENGTH) return std::vector<BoardCoordinateUtils::coordinates> {};
             BoardCoordinateUtils::coordinates pieces_to_flip_coordinates;
             pieces_to_flip_coordinates.x = row; 
             pieces_to_flip_coordinates.y = col;
             result_coordinates.push_back(pieces_to_flip_coordinates);
             continue;
-            } else {
-              return std::vector<BoardCoordinateUtils::coordinates> {};
-            }
-          
+            } 
+          return std::vector<BoardCoordinateUtils::coordinates> {};
         }
 
         return result_coordinates;
