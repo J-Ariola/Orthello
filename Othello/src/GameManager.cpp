@@ -16,12 +16,16 @@ bool GameManager::StartGame() {
   //No player info
   if(!_player1_ptr || !_player2_ptr) return false;
   //_player_1 starting pieces
-  InsertPlayerPieceByCoordinates("E4", _player1_ptr, true);
-  InsertPlayerPieceByCoordinates("D5", _player1_ptr, true);
+  InsertPlayerPieceByCoordinates("D4", _player1_ptr, true);
 
   //_player_2 starting pieces
-  InsertPlayerPieceByCoordinates("D4", _player2_ptr, true);
-  InsertPlayerPieceByCoordinates("E5", _player2_ptr, true);
+  InsertPlayerPieceByCoordinates("A3", _player2_ptr, true);
+  InsertPlayerPieceByCoordinates("B4", _player2_ptr, true);
+  InsertPlayerPieceByCoordinates("C4", _player2_ptr, true);
+
+
+  InsertPlayerPieceByCoordinates("A5", _player1_ptr, true);
+  InsertPlayerPieceByCoordinates("A2", _player1_ptr, true);
 
   _current_state = GameState::AnalyzeBoard;
   _current_player_ptr = _player1_ptr;
@@ -35,26 +39,37 @@ bool GameManager::Update() {
   switch (_current_state)
   {
     case GameState::AnalyzeBoard: {
-      std::cout << "Analyze" << std::endl;
+      std::cout << "Analyze " << current_player_ptr->GetName() << std::endl;
       std::vector<BoardCoordinateUtils::coordinates> placed_coordinates = GetCurrentPlayerPlacedCoordinates(current_player_ptr);
       std::vector<BoardCoordinateUtils::coordinates> possible_coordinates = GetPossiblePlacementCoordinates(current_player_ptr, placed_coordinates);
+      std::cout << "Printing possible places: ";
       PrintVectorOfCoordinates(possible_coordinates);
-      if (possible_coordinates.size() == 0) {
-        _times_player_skipped++;
-      }
-
+      
       for (auto coord : possible_coordinates) {
         InsertPieceByIndex(coord.x, coord.y, POSSIBLE_PLACE_PIECE_CHAR);
       }
-        if (_times_player_skipped >= 2) {
-          _isGameComplete = true;
+      if (_number_of_turns_counter > MAX_NUM_OF_TURNS) {
+        _isGameComplete = true;
+        break;
+      }
+      ++_number_of_turns_counter;
+
+      if (possible_coordinates.size() == 0) {
+        _times_player_skipped++;
+
+        if (_times_player_skipped < 2) {
+          _current_state = GameState::ResetForNextTurn;
           break;
-        }
-        if (_number_of_turns_counter > MAX_NUM_OF_TURNS) {
+        } 
           _isGameComplete = true;
-          break;
-        }
-        ++_number_of_turns_counter;
+          return true;
+      }
+
+      if (_times_player_skipped >= 2) {
+        _isGameComplete = true;
+        break;
+      }
+
       _current_state = GameState::PrintBoard;
       break;
     }
@@ -101,16 +116,32 @@ bool GameManager::Update() {
         GetPiecesToFlipCoordinates(placed_piece_coordinates, current_player_ptr->GetPiece(), oppposing_player_ptr->GetPiece(), -1);
       std::vector<BoardCoordinateUtils::coordinates> down_pieces_to_flip_coordinates = 
         GetPiecesToFlipCoordinates(placed_piece_coordinates, current_player_ptr->GetPiece(), oppposing_player_ptr->GetPiece(), 1);
+      std::vector<BoardCoordinateUtils::coordinates> up_left_pieces_to_flip_coordinates = 
+        GetPiecesToFlipCoordinates(placed_piece_coordinates, current_player_ptr->GetPiece(), oppposing_player_ptr->GetPiece(), -1, -1);
+      std::vector<BoardCoordinateUtils::coordinates> up_right_pieces_to_flip_coordinates = 
+        GetPiecesToFlipCoordinates(placed_piece_coordinates, current_player_ptr->GetPiece(), oppposing_player_ptr->GetPiece(), -1, 1);
+      std::vector<BoardCoordinateUtils::coordinates> down_left_pieces_to_flip_coordinates = 
+        GetPiecesToFlipCoordinates(placed_piece_coordinates, current_player_ptr->GetPiece(), oppposing_player_ptr->GetPiece(), 1, -1);
+      std::vector<BoardCoordinateUtils::coordinates> down_right_pieces_to_flip_coordinates = 
+        GetPiecesToFlipCoordinates(placed_piece_coordinates, current_player_ptr->GetPiece(), oppposing_player_ptr->GetPiece(), 1, 1);
 
       pieces_to_flip_coordinates.insert(pieces_to_flip_coordinates.end(), left_pieces_to_flip_coordinates.begin(), left_pieces_to_flip_coordinates.end());
       pieces_to_flip_coordinates.insert(pieces_to_flip_coordinates.end(), right_pieces_to_flip_coordinates.begin(), right_pieces_to_flip_coordinates.end());
       pieces_to_flip_coordinates.insert(pieces_to_flip_coordinates.end(), up_pieces_to_flip_coordinates.begin(), up_pieces_to_flip_coordinates.end());
       pieces_to_flip_coordinates.insert(pieces_to_flip_coordinates.end(), down_pieces_to_flip_coordinates.begin(), down_pieces_to_flip_coordinates.end());
+      pieces_to_flip_coordinates.insert(pieces_to_flip_coordinates.end(), up_left_pieces_to_flip_coordinates.begin(), up_left_pieces_to_flip_coordinates.end());
+      pieces_to_flip_coordinates.insert(pieces_to_flip_coordinates.end(), up_right_pieces_to_flip_coordinates.begin(), up_right_pieces_to_flip_coordinates.end());
+      pieces_to_flip_coordinates.insert(pieces_to_flip_coordinates.end(), down_left_pieces_to_flip_coordinates.begin(), down_left_pieces_to_flip_coordinates.end());
+      pieces_to_flip_coordinates.insert(pieces_to_flip_coordinates.end(), down_right_pieces_to_flip_coordinates.begin(), down_right_pieces_to_flip_coordinates.end());
 
       for (auto coords : pieces_to_flip_coordinates) {
         InsertPieceByIndex(coords.x, coords.y, current_player_ptr->GetPiece());
       }
+      _current_state = GameState::ResetForNextTurn;
+      break;
+    }
 
+    case GameState::ResetForNextTurn: {
       //Remove possible places pieces from game board
       for (int row = 0; row < BOARD_LENGTH; row++) {
         for (int col = 0; col < BOARD_LENGTH; col++) {
@@ -127,6 +158,42 @@ bool GameManager::Update() {
     }
 
   }
+  return true;
+}
+
+bool GameManager::EndGame() {
+  std::cout << "Tally points" << std::endl;
+  char player_1_piece = _player1_ptr->GetPiece();
+  char player_2_piece = _player2_ptr->GetPiece();
+  int player1_points{0};
+  int player2_points{0};  
+
+  for(int row = 0; row < BOARD_LENGTH; row++) {
+    for (int col = 0; col < BOARD_LENGTH; col++) {
+      char current_piece = _othello_gameboard[row][col];
+      if (current_piece == player_1_piece) {
+        ++player1_points;
+        continue;
+      }
+      if (current_piece == player_2_piece) {
+        ++player2_points;
+        continue;
+      }
+    }
+  }
+
+  std::cout << "Player 1 points: " << player1_points << std::endl;
+  std::cout << "Player 2 points: " << player2_points << std::endl;
+
+  if (player1_points > player2_points) {
+    std::cout << _player1_ptr->GetName() << " wins!" << std::endl;
+    return true;
+  }
+  if (player1_points < player2_points) {
+    std::cout << _player2_ptr->GetName() << " wins!" << std::endl;
+    return true;
+  }
+  std::cout << "It is a draw, good job " << _player1_ptr->GetName() << " & " << _player2_ptr->GetName() << std::endl;
   return true;
 }
 
@@ -230,18 +297,17 @@ std::vector<BoardCoordinateUtils::coordinates> GameManager::GetPossiblePlacement
     //Checking right
     AddCoordinatesByIncrementDirection(possible_to_place_coordinates, coordinates, player_piece, opponent_piece, 0, 1);    
     //Checking up
-    AddCoordinatesByIncrementDirection(possible_to_place_coordinates, coordinates, player_piece, opponent_piece, 1);    
-    //Checking down
     AddCoordinatesByIncrementDirection(possible_to_place_coordinates, coordinates, player_piece, opponent_piece, -1);    
-    //TODO: Check diagonals
+    //Checking down
+    AddCoordinatesByIncrementDirection(possible_to_place_coordinates, coordinates, player_piece, opponent_piece, 1);    
     //Checking up-left
-    // AddCoordinatesByIncrementDirection(possible_to_place_coordinates, coordinates, player_piece, opponent_piece, -1, -1);    
+    AddCoordinatesByIncrementDirection(possible_to_place_coordinates, coordinates, player_piece, opponent_piece, -1, -1);    
     //Checking up-right
-    // AddCoordinatesByIncrementDirection(possible_to_place_coordinates, coordinates, player_piece, opponent_piece, -1, 1);    
+    AddCoordinatesByIncrementDirection(possible_to_place_coordinates, coordinates, player_piece, opponent_piece, -1, 1);    
     //Checking down-left
-    // AddCoordinatesByIncrementDirection(possible_to_place_coordinates, coordinates, player_piece, opponent_piece, 1, -1);    
+    AddCoordinatesByIncrementDirection(possible_to_place_coordinates, coordinates, player_piece, opponent_piece, 1, -1);    
     //Checking down-right
-    // AddCoordinatesByIncrementDirection(possible_to_place_coordinates, coordinates, player_piece, opponent_piece, 1, 1);    
+    AddCoordinatesByIncrementDirection(possible_to_place_coordinates, coordinates, player_piece, opponent_piece, 1, 1);    
 
   }
   return possible_to_place_coordinates;

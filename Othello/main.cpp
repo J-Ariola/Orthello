@@ -17,6 +17,8 @@ int main () {
     gm_ptr->Update();
   }
 
+  gm_ptr->EndGame();
+
   gm_ptr = nullptr;
   std::cout << "REACHED END OF PROGRAM SAFELY" << std::endl;
   return 0;
