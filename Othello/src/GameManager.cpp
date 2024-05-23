@@ -11,29 +11,18 @@ GameManager::~GameManager() {
 }
 
 bool GameManager::StartGame() {
-  InitializePlayers(true);
+  InitializePlayers();
 
   //No player info
   if(!_player1_ptr || !_player2_ptr) return false;
 
   //_player_1 starting pieces
   InsertPlayerPieceByCoordinates("E4", _player1_ptr, true);
-  // InsertPlayerPieceByCoordinates("D5", _player1_ptr, true);
+  InsertPlayerPieceByCoordinates("D5", _player1_ptr, true);
 
   //_player_2 starting pieces
   InsertPlayerPieceByCoordinates("D4", _player2_ptr, true);
-  // InsertPlayerPieceByCoordinates("E5", _player2_ptr, true);
-
-  InsertPlayerPieceByCoordinates("C6", _player2_ptr, true);
-  InsertPlayerPieceByCoordinates("C7", _player2_ptr, true);
-  InsertPlayerPieceByCoordinates("C8", _player2_ptr, true);
-  
-  InsertPlayerPieceByCoordinates("D5", _player2_ptr, true);
-  InsertPlayerPieceByCoordinates("E5", _player1_ptr, true);
-
-
-
-  
+  InsertPlayerPieceByCoordinates("E5", _player2_ptr, true);
 
   _current_state = GameState::AnalyzeBoard;
   _current_player_ptr = _player1_ptr;
