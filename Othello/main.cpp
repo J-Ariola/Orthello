@@ -20,6 +20,6 @@ int main () {
   gm_ptr->EndGame();
 
   gm_ptr = nullptr;
-  std::cout << "REACHED END OF PROGRAM SAFELY" << std::endl;
+  std::cout << "Thank you for playing!" << std::endl;
   return 0;
 }

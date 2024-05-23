@@ -49,7 +49,6 @@ namespace BoardCoordinateUtils {
   };
 
   coordinates static inline StringCoordinatesToArrayIndeces (const std::string &placement_coordinates_string) {
-    std::cout << "Placement Coordinates " << placement_coordinates_string.at(0) << " " << placement_coordinates_string.at(1) << std::endl;
     int x_val = placement_coordinates_string.at(1) - '1'; // Counters ASCII
     int y_val = std::toupper(char_to_int_map.at(placement_coordinates_string.at(0)));
     coordinates resultCoords;

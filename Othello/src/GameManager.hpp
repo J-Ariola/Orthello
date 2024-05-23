@@ -12,7 +12,7 @@
 
 enum class GameState {AnalyzeBoard, PrintBoard, PlayerTurn, UpdateBoard, ResetForNextTurn};
 static const int BOARD_LENGTH{8};
-const char POSSIBLE_PLACE_PIECE_CHAR {'0'};
+const char POSSIBLE_PLACE_PIECE_CHAR {'@'};
 const char EMPLY_PLACE_PIECE_CHAR{'.'};
 
 class GameManager {
@@ -25,11 +25,8 @@ class GameManager {
     //Methods
     bool StartGame();
     bool Update();
-    bool PrintGameboard();
     bool EndGame();
-    std::vector<BoardCoordinateUtils::coordinates> GetCurrentPlayerPlacedCoordinates(const std::shared_ptr<Player> &current_player_ptr);
-    std::vector<BoardCoordinateUtils::coordinates> GetPossiblePlacementCoordinates(const std::shared_ptr<Player> &current_player_ptr, 
-      const std::vector<BoardCoordinateUtils::coordinates> &placed_coordinates);
+    bool PrintGameboard();
 
     //Properties
     bool GetIsGameComplete();
@@ -51,13 +48,15 @@ class GameManager {
 
 
     //Methods
-    bool InitializePlayers();
+    bool InitializePlayers(bool is_debugging = false);
+    std::string AskPlayerForPlacementCoordinates(const std::shared_ptr<Player> &current_player_ptr);
     bool InsertPlayerPieceByCoordinates(const std::string &placement_coordinates_string, 
       const std::shared_ptr<Player> &current_player_ptr, 
       const bool ignore_placement_rules = true);
     bool InsertPieceByIndex(int row, int column, char piece);
-    std::string AskPlayerForPlacementCoordinates(const std::shared_ptr<Player> &current_player_ptr);
-    bool PrintVectorOfCoordinates (const std::vector<BoardCoordinateUtils::coordinates> &vec);
+    std::vector<BoardCoordinateUtils::coordinates> GetCurrentPlayerPlacedCoordinates(const std::shared_ptr<Player> &current_player_ptr);
+    std::vector<BoardCoordinateUtils::coordinates> GetPossiblePlacementCoordinates(const std::shared_ptr<Player> &current_player_ptr, 
+      const std::vector<BoardCoordinateUtils::coordinates> &placed_coordinates);
     bool AddCoordinatesByIncrementDirection(
       std::vector<BoardCoordinateUtils::coordinates> &possible_to_place_coordinates, 
       const BoardCoordinateUtils::coordinates &startingCoordinates, 
@@ -72,6 +71,7 @@ class GameManager {
       const int increment_row_val = 0, 
       const int increment_col_val = 0
       );
+    bool PrintVectorOfCoordinates (const std::vector<BoardCoordinateUtils::coordinates> &vec);
 };
 
 

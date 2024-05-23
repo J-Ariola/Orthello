@@ -15,17 +15,15 @@ bool GameManager::StartGame() {
 
   //No player info
   if(!_player1_ptr || !_player2_ptr) return false;
+
   //_player_1 starting pieces
-  InsertPlayerPieceByCoordinates("D4", _player1_ptr, true);
+  InsertPlayerPieceByCoordinates("E4", _player1_ptr, true);
+  InsertPlayerPieceByCoordinates("D5", _player1_ptr, true);
 
   //_player_2 starting pieces
-  InsertPlayerPieceByCoordinates("A3", _player2_ptr, true);
-  InsertPlayerPieceByCoordinates("B4", _player2_ptr, true);
-  InsertPlayerPieceByCoordinates("C4", _player2_ptr, true);
+  InsertPlayerPieceByCoordinates("D4", _player2_ptr, true);
+  InsertPlayerPieceByCoordinates("E5", _player2_ptr, true);
 
-
-  InsertPlayerPieceByCoordinates("A5", _player1_ptr, true);
-  InsertPlayerPieceByCoordinates("A2", _player1_ptr, true);
 
   _current_state = GameState::AnalyzeBoard;
   _current_player_ptr = _player1_ptr;
@@ -39,24 +37,21 @@ bool GameManager::Update() {
   switch (_current_state)
   {
     case GameState::AnalyzeBoard: {
-      std::cout << "Analyze " << current_player_ptr->GetName() << std::endl;
       std::vector<BoardCoordinateUtils::coordinates> placed_coordinates = GetCurrentPlayerPlacedCoordinates(current_player_ptr);
       std::vector<BoardCoordinateUtils::coordinates> possible_coordinates = GetPossiblePlacementCoordinates(current_player_ptr, placed_coordinates);
-      std::cout << "Printing possible places: ";
-      PrintVectorOfCoordinates(possible_coordinates);
       
       for (auto coord : possible_coordinates) {
         InsertPieceByIndex(coord.x, coord.y, POSSIBLE_PLACE_PIECE_CHAR);
       }
       if (_number_of_turns_counter > MAX_NUM_OF_TURNS) {
         _isGameComplete = true;
-        break;
+        return true;
       }
       ++_number_of_turns_counter;
 
       if (possible_coordinates.size() == 0) {
         _times_player_skipped++;
-
+        std::cout << "PLAYER " << current_player_ptr->GetName() << " TURN SKIPPED!" << std::endl;
         if (_times_player_skipped < 2) {
           _current_state = GameState::ResetForNextTurn;
           break;
@@ -75,7 +70,6 @@ bool GameManager::Update() {
     }
 
     case GameState::PrintBoard: {
-      std::cout << "Print" << std::endl;
       PrintGameboard();
       _current_state = GameState::PlayerTurn;
       break;    
@@ -162,11 +156,12 @@ bool GameManager::Update() {
 }
 
 bool GameManager::EndGame() {
+  PrintGameboard();
   std::cout << "Tally points" << std::endl;
   char player_1_piece = _player1_ptr->GetPiece();
   char player_2_piece = _player2_ptr->GetPiece();
-  int player1_points{0};
-  int player2_points{0};  
+  unsigned int player1_points{0};
+  unsigned int player2_points{0};  
 
   for(int row = 0; row < BOARD_LENGTH; row++) {
     for (int col = 0; col < BOARD_LENGTH; col++) {
@@ -197,42 +192,6 @@ bool GameManager::EndGame() {
   return true;
 }
 
-bool GameManager::InitializePlayers() {
-  unsigned int playerCount {1};
-
-  // while (playerCount <= 2) {
-  //   std::string name{""};
-  //   char piece_char{};
-
-  //   std::cout << "Please enter player " << playerCount << "\'s name: ";
-  //   std::cin >> name;
-  //   std::cout << std::endl;
-
-  //   std::cout << "Welcome " << name << ", please enter a single character to represent your piece: ";
-  //   std::cin >> piece_char;
-
-  //   std::shared_ptr<Player> new_player_ptr {new Player(name, piece_char)};
-  //   new_player_ptr->DisplayPlayerInfo();
-
-  //   if (playerCount == 1) {
-  //     _player1_ptr = new_player_ptr;
-  //   } else {
-  //     _player2_ptr = new_player_ptr;
-  //   }
-    
-  //   playerCount++;
-  //   new_player_ptr = nullptr;
-  // }
-
-  std::shared_ptr<Player> new_p1_ptr {new Player("Dom", 'D')};
-  std::shared_ptr<Player> new_p2_ptr {new Player("Ter", 'T')};
-
-  _player1_ptr = new_p1_ptr;
-  _player2_ptr = new_p2_ptr;
-
-  return true;
-}
-
 bool GameManager::PrintGameboard() {
   const int row_length = BOARD_LENGTH;
   const int column_length = BOARD_LENGTH;
@@ -240,31 +199,108 @@ bool GameManager::PrintGameboard() {
   const signed int HORIZONTAL_SPACE = 4;
   const char LINE_CHAR{'='};
   
-  std::cout << " ";
+  std::cout << "\t\t ";
   for (auto c = 0; c < column_length; c++) {
     std::cout << "   " << alpha_indicators[c];
   }
   std::cout << std::endl;
 
-  std::cout << "=";
+  std::cout << "\t\t=";
   for (auto c = 0; c < column_length; c++) {
     std::string line{std::string(HORIZONTAL_SPACE, LINE_CHAR)};
     std::cout << line;
   }
   std::cout << std::endl;
 
-  // for (auto c = 0; c < column_length; c++) {
-  //   std::cout << "1234567890";
-  // }
-  // std::cout << std::endl;
-
   for (auto r = 0; r < row_length; r++) {
-    std::cout << r + 1;
+    std::cout << "\t\t" << r + 1;
     for (auto c = 0; c < column_length; c++) {
       std::cout << "   " << _othello_gameboard[r][c];
     }
     std::cout << std::endl;
   }
+  return true;
+}
+
+bool GameManager::GetIsGameComplete() {
+  return _isGameComplete;
+}
+
+
+bool GameManager::InitializePlayers(bool is_debugging) {
+  if (is_debugging) {
+  std::shared_ptr<Player> new_p1_ptr {new Player("Dom", 'D')};
+  std::shared_ptr<Player> new_p2_ptr {new Player("Ter", 'T')};
+  _player1_ptr = new_p1_ptr;
+  _player2_ptr = new_p2_ptr;
+    return true;
+  }
+
+  unsigned int playerCount {1};
+
+  while (playerCount <= 2) {
+    std::string name{""};
+    char piece_char{};
+
+    std::cout << "Please enter player " << playerCount << "\'s name: ";
+    std::cin >> name;
+    std::cout << std::endl;
+
+    std::cout << "Welcome " << name << ", please enter a single character to represent your piece: ";
+    std::cin >> piece_char;
+
+    std::shared_ptr<Player> new_player_ptr {new Player(name, piece_char)};
+    new_player_ptr->DisplayPlayerInfo();
+
+    if (playerCount == 1) {
+      _player1_ptr = new_player_ptr;
+    } else {
+      _player2_ptr = new_player_ptr;
+    }
+    
+    playerCount++;
+    new_player_ptr = nullptr;
+  }
+
+  return true;
+}
+
+std::string GameManager::AskPlayerForPlacementCoordinates(const std::shared_ptr<Player> &current_player_ptr) {
+  std::string input_coordinates{};
+  bool isValidInput{false};
+
+  while (!isValidInput) {
+  std::cout << "Player " << current_player_ptr->GetName() << ", enter the coordinates (EX. \"d3\") of the grid where you want to play: ";
+  std::cin >> input_coordinates;
+  
+  if (input_coordinates == "QUIT") return "QUIT";
+
+  isValidInput = BoardCoordinateUtils::IsValidCoordinates(input_coordinates);
+    if (!isValidInput) {
+      std::cout << "Invalid input. Please try again " << current_player_ptr->GetName() << std::endl;
+    }
+  }
+  input_coordinates[0] = std::toupper(input_coordinates[0]);
+
+  return input_coordinates;
+}
+
+bool GameManager::InsertPlayerPieceByCoordinates(const std::string &placement_coordinates_string,
+  const std::shared_ptr<Player> &current_player_ptr,
+  const bool ignore_placement_rules) {
+  BoardCoordinateUtils::coordinates coordinates = BoardCoordinateUtils::StringCoordinatesToArrayIndeces(placement_coordinates_string);
+
+  if (coordinates.x >= BOARD_LENGTH || coordinates.y >= BOARD_LENGTH) return false;
+  if (_othello_gameboard[coordinates.x][coordinates.y] != '0' && !ignore_placement_rules) return false;
+
+  // _othello_gameboard[coordinates.x][coordinates.y] = current_player_ptr->GetPiece();
+  InsertPieceByIndex(coordinates.x, coordinates.y, current_player_ptr->GetPiece());
+
+  return true;
+}
+
+bool GameManager::InsertPieceByIndex(int row, int column, char piece) {
+  _othello_gameboard[row][column] = piece;
   return true;
 }
 
@@ -311,60 +347,6 @@ std::vector<BoardCoordinateUtils::coordinates> GameManager::GetPossiblePlacement
 
   }
   return possible_to_place_coordinates;
-}
-
-bool GameManager::InsertPlayerPieceByCoordinates(const std::string &placement_coordinates_string,
-  const std::shared_ptr<Player> &current_player_ptr,
-  const bool ignore_placement_rules) {
-  BoardCoordinateUtils::coordinates coordinates = BoardCoordinateUtils::StringCoordinatesToArrayIndeces(placement_coordinates_string);
-  std::cout << "Inserting " << current_player_ptr->GetName() << ": " << current_player_ptr->GetPiece() 
-  << " into [" << coordinates.x << ", " << coordinates.y << "]" << std::endl;
-
-  if (coordinates.x >= BOARD_LENGTH || coordinates.y >= BOARD_LENGTH) return false;
-  if (_othello_gameboard[coordinates.x][coordinates.y] != '0' && !ignore_placement_rules) return false;
-
-  // _othello_gameboard[coordinates.x][coordinates.y] = current_player_ptr->GetPiece();
-  InsertPieceByIndex(coordinates.x, coordinates.y, current_player_ptr->GetPiece());
-
-  return true;
-}
-
-bool GameManager::GetIsGameComplete() {
-  return _isGameComplete;
-}
-
-bool GameManager::InsertPieceByIndex(int row, int column, char piece) {
-  _othello_gameboard[row][column] = piece;
-  return true;
-}
-
-std::string GameManager::AskPlayerForPlacementCoordinates(const std::shared_ptr<Player> &current_player_ptr) {
-  std::string input_coordinates{};
-  bool isValidInput{false};
-
-  while (!isValidInput) {
-  std::cout << "Player " << current_player_ptr->GetName() << ", enter the coordinates (EX. \"D3\") of the grid where you want to play: ";
-  std::cin >> input_coordinates;
-  
-  if (input_coordinates == "QUIT") return "QUIT";
-
-  isValidInput = BoardCoordinateUtils::IsValidCoordinates(input_coordinates);
-    if (!isValidInput) {
-      std::cout << "Invalid input. Please try again " << current_player_ptr->GetName() << std::endl;
-    }
-  }
-  input_coordinates[0] = std::toupper(input_coordinates[0]);
-  std::cout << "User input: " << input_coordinates << std::endl;
-
-  return input_coordinates;
-}
-
-bool GameManager::PrintVectorOfCoordinates (const std::vector<BoardCoordinateUtils::coordinates> &vec) {
-  for (auto coord : vec) {
-    coord.operator<<(std::cout) << " ";
-  }
-  std::cout << std::endl;
-  return true;
 }
 
 bool GameManager::AddCoordinatesByIncrementDirection(
@@ -432,3 +414,11 @@ std::vector<BoardCoordinateUtils::coordinates> GameManager::GetPiecesToFlipCoord
 
         return result_coordinates;
       }
+
+bool GameManager::PrintVectorOfCoordinates (const std::vector<BoardCoordinateUtils::coordinates> &vec) {
+  for (auto coord : vec) {
+    coord.operator<<(std::cout) << " ";
+  }
+  std::cout << std::endl;
+  return true;
+}
