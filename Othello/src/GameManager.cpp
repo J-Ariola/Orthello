@@ -76,7 +76,6 @@ bool GameManager::Update() {
     }
 
     case GameState::PlayerTurn: {
-      std::cout << "Player Turn" << std::endl;
       std::string input_coordinates = AskPlayerForPlacementCoordinates(current_player_ptr);
       
       if (input_coordinates == "QUIT") {
