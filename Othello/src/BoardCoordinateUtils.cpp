@@ -1,6 +1,7 @@
 #ifndef BOARD_COORDINATE_UTILS_CPP
 #define BOARD_COORDINATE_UTILS_CPP
 
+#include "Coordinates.hpp"
 #include <string>
 #include <iostream>
 #include <map>
@@ -19,16 +20,6 @@ namespace BoardCoordinateUtils {
     {'F', 5},
     {'G', 6},
     {'H', 7},
-  };
-
-  struct coordinates{
-    int x;
-    int y;
-  public: 
-    std::ostream &operator<<(std::ostream &os) {
-      os << "[" << x << ", " << y << "]";
-      return os;
-    }
   };
 
   bool static inline IsValidCoordinates (const std::string &placement_coordinates_string) {

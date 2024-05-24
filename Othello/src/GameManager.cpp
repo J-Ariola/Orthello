@@ -36,8 +36,8 @@ bool GameManager::Update() {
   switch (_current_state)
   {
     case GameState::AnalyzeBoard: {
-      std::vector<BoardCoordinateUtils::coordinates> placed_coordinates = GetCurrentPlayerPlacedCoordinates(current_player_ptr);
-      std::vector<BoardCoordinateUtils::coordinates> possible_coordinates = GetPossiblePlacementCoordinates(current_player_ptr, placed_coordinates);
+      std::vector<coordinates> placed_coordinates = GetCurrentPlayerPlacedCoordinates(current_player_ptr);
+      std::vector<coordinates> possible_coordinates = GetPossiblePlacementCoordinates(current_player_ptr, placed_coordinates);
       
       for (auto coord : possible_coordinates) {
         InsertPieceByIndex(coord.x, coord.y, POSSIBLE_PLACE_PIECE_CHAR);
@@ -96,25 +96,25 @@ bool GameManager::Update() {
     case GameState::UpdateBoard: {
       //Player piece has been placed in Player Turn
       //No resolve the possible places
-      std::vector<BoardCoordinateUtils::coordinates> pieces_to_flip_coordinates{};
-      BoardCoordinateUtils::coordinates placed_piece_coordinates = BoardCoordinateUtils::StringCoordinatesToArrayIndeces(_current_player_placed_string);
+      std::vector<coordinates> pieces_to_flip_coordinates{};
+      coordinates placed_piece_coordinates = BoardCoordinateUtils::StringCoordinatesToArrayIndeces(_current_player_placed_string);
 
-      placed_piece_coordinates<<(std::cout) << std::endl;
-      std::vector<BoardCoordinateUtils::coordinates> left_pieces_to_flip_coordinates = 
+      std::cout << placed_piece_coordinates << std::endl;
+      std::vector<coordinates> left_pieces_to_flip_coordinates = 
         GetPiecesToFlipCoordinates(placed_piece_coordinates, current_player_ptr->GetPiece(), oppposing_player_ptr->GetPiece(), 0, -1);
-      std::vector<BoardCoordinateUtils::coordinates> right_pieces_to_flip_coordinates = 
+      std::vector<coordinates> right_pieces_to_flip_coordinates = 
         GetPiecesToFlipCoordinates(placed_piece_coordinates, current_player_ptr->GetPiece(), oppposing_player_ptr->GetPiece(), 0, 1);
-      std::vector<BoardCoordinateUtils::coordinates> up_pieces_to_flip_coordinates = 
+      std::vector<coordinates> up_pieces_to_flip_coordinates = 
         GetPiecesToFlipCoordinates(placed_piece_coordinates, current_player_ptr->GetPiece(), oppposing_player_ptr->GetPiece(), -1);
-      std::vector<BoardCoordinateUtils::coordinates> down_pieces_to_flip_coordinates = 
+      std::vector<coordinates> down_pieces_to_flip_coordinates = 
         GetPiecesToFlipCoordinates(placed_piece_coordinates, current_player_ptr->GetPiece(), oppposing_player_ptr->GetPiece(), 1);
-      std::vector<BoardCoordinateUtils::coordinates> up_left_pieces_to_flip_coordinates = 
+      std::vector<coordinates> up_left_pieces_to_flip_coordinates = 
         GetPiecesToFlipCoordinates(placed_piece_coordinates, current_player_ptr->GetPiece(), oppposing_player_ptr->GetPiece(), -1, -1);
-      std::vector<BoardCoordinateUtils::coordinates> up_right_pieces_to_flip_coordinates = 
+      std::vector<coordinates> up_right_pieces_to_flip_coordinates = 
         GetPiecesToFlipCoordinates(placed_piece_coordinates, current_player_ptr->GetPiece(), oppposing_player_ptr->GetPiece(), -1, 1);
-      std::vector<BoardCoordinateUtils::coordinates> down_left_pieces_to_flip_coordinates = 
+      std::vector<coordinates> down_left_pieces_to_flip_coordinates = 
         GetPiecesToFlipCoordinates(placed_piece_coordinates, current_player_ptr->GetPiece(), oppposing_player_ptr->GetPiece(), 1, -1);
-      std::vector<BoardCoordinateUtils::coordinates> down_right_pieces_to_flip_coordinates = 
+      std::vector<coordinates> down_right_pieces_to_flip_coordinates = 
         GetPiecesToFlipCoordinates(placed_piece_coordinates, current_player_ptr->GetPiece(), oppposing_player_ptr->GetPiece(), 1, 1);
 
       pieces_to_flip_coordinates.insert(pieces_to_flip_coordinates.end(), left_pieces_to_flip_coordinates.begin(), left_pieces_to_flip_coordinates.end());
@@ -286,7 +286,7 @@ std::string GameManager::AskPlayerForPlacementCoordinates(const std::shared_ptr<
 bool GameManager::InsertPlayerPieceByCoordinates(const std::string &placement_coordinates_string,
   const std::shared_ptr<Player> &current_player_ptr,
   const bool ignore_placement_rules) {
-  BoardCoordinateUtils::coordinates coordinates = BoardCoordinateUtils::StringCoordinatesToArrayIndeces(placement_coordinates_string);
+  coordinates coordinates = BoardCoordinateUtils::StringCoordinatesToArrayIndeces(placement_coordinates_string);
 
   if (coordinates.x >= BOARD_LENGTH || coordinates.y >= BOARD_LENGTH) return false;
   if (_othello_gameboard[coordinates.x][coordinates.y] != '0' && !ignore_placement_rules) return false;
@@ -302,14 +302,14 @@ bool GameManager::InsertPieceByIndex(int row, int column, char piece) {
   return true;
 }
 
-std::vector<BoardCoordinateUtils::coordinates> GameManager::GetCurrentPlayerPlacedCoordinates(const std::shared_ptr<Player> &current_player_ptr) {
-  std::vector<BoardCoordinateUtils::coordinates> player_placed_coordinates;
+std::vector<coordinates> GameManager::GetCurrentPlayerPlacedCoordinates(const std::shared_ptr<Player> &current_player_ptr) {
+  std::vector<coordinates> player_placed_coordinates;
   char player_piece = current_player_ptr->GetPiece();
 
   for (auto r = 0; r < BOARD_LENGTH; r++) {
     for (auto c = 0; c < BOARD_LENGTH; c++) {
       if (_othello_gameboard[r][c] == player_piece){
-        BoardCoordinateUtils::coordinates placed_coords;
+        coordinates placed_coords;
         placed_coords.x = r;
         placed_coords.y = c;
         player_placed_coordinates.push_back(placed_coords);
@@ -320,8 +320,8 @@ std::vector<BoardCoordinateUtils::coordinates> GameManager::GetCurrentPlayerPlac
   return player_placed_coordinates;
 }
 
-std::vector<BoardCoordinateUtils::coordinates> GameManager::GetPossiblePlacementCoordinates(const std::shared_ptr<Player> &current_player_ptr, const std::vector<BoardCoordinateUtils::coordinates> &placed_coordinates) {
-  std::vector<BoardCoordinateUtils::coordinates> possible_to_place_coordinates;
+std::vector<coordinates> GameManager::GetPossiblePlacementCoordinates(const std::shared_ptr<Player> &current_player_ptr, const std::vector<coordinates> &placed_coordinates) {
+  std::vector<coordinates> possible_to_place_coordinates;
   char player_piece = current_player_ptr->GetPiece();
   char opponent_piece = (_isPlayer1Turn) ? _player2_ptr->GetPiece() : _player1_ptr->GetPiece();
 
@@ -348,8 +348,8 @@ std::vector<BoardCoordinateUtils::coordinates> GameManager::GetPossiblePlacement
 }
 
 bool GameManager::AddCoordinatesByIncrementDirection(
-  std::vector<BoardCoordinateUtils::coordinates> &possible_to_place_coordinates, 
-  const BoardCoordinateUtils::coordinates &startingCoordinates, 
+  std::vector<coordinates> &possible_to_place_coordinates, 
+  const coordinates &startingCoordinates, 
   const char &current_player_piece,
   const char &opposing_player_piece,
   const int increment_row_val, 
@@ -371,7 +371,7 @@ bool GameManager::AddCoordinatesByIncrementDirection(
       continue;
     }
     if (has_encountered_opposing_piece && current_piece != opposing_player_piece) {
-      BoardCoordinateUtils::coordinates temp_coordinates;
+      coordinates temp_coordinates;
       temp_coordinates.x = row;
       temp_coordinates.y = col;
       possible_to_place_coordinates.push_back(temp_coordinates);
@@ -384,13 +384,13 @@ bool GameManager::AddCoordinatesByIncrementDirection(
   return true;
 }
 
-std::vector<BoardCoordinateUtils::coordinates> GameManager::GetPiecesToFlipCoordinates (const BoardCoordinateUtils::coordinates &placed_coordinates,
+std::vector<coordinates> GameManager::GetPiecesToFlipCoordinates (const coordinates &placed_coordinates,
   const char &current_player_piece,
   const char &opposing_player_piece,
   const int increment_row_val, 
   const int increment_col_val
       ) {
-        std::vector<BoardCoordinateUtils::coordinates> result_coordinates{};
+        std::vector<coordinates> result_coordinates{};
         if (std::abs(increment_col_val) > 1 || std::abs(increment_row_val) > 1) return result_coordinates;
         
         for (int row = placed_coordinates.x + increment_row_val, col = placed_coordinates.y + increment_col_val; 
@@ -401,23 +401,23 @@ std::vector<BoardCoordinateUtils::coordinates> GameManager::GetPiecesToFlipCoord
 
           if (current_piece == current_player_piece) return result_coordinates;
           if (current_piece == opposing_player_piece) {
-            if (row + increment_row_val < 0 || row + increment_row_val == BOARD_LENGTH) return std::vector<BoardCoordinateUtils::coordinates> {};
-            if (col + increment_col_val < 0 || col + increment_col_val == BOARD_LENGTH) return std::vector<BoardCoordinateUtils::coordinates> {};
-            BoardCoordinateUtils::coordinates pieces_to_flip_coordinates;
+            if (row + increment_row_val < 0 || row + increment_row_val == BOARD_LENGTH) return std::vector<coordinates> {};
+            if (col + increment_col_val < 0 || col + increment_col_val == BOARD_LENGTH) return std::vector<coordinates> {};
+            coordinates pieces_to_flip_coordinates;
             pieces_to_flip_coordinates.x = row; 
             pieces_to_flip_coordinates.y = col;
             result_coordinates.push_back(pieces_to_flip_coordinates);
             continue;
             } 
-          return std::vector<BoardCoordinateUtils::coordinates> {};
+          return std::vector<coordinates> {};
         }
 
         return result_coordinates;
       }
 
-bool GameManager::PrintVectorOfCoordinates (const std::vector<BoardCoordinateUtils::coordinates> &vec) {
+bool GameManager::PrintVectorOfCoordinates (const std::vector<coordinates> &vec) {
   for (auto coord : vec) {
-    coord.operator<<(std::cout) << " ";
+    std::cout << coord << " ";
   }
   std::cout << std::endl;
   return true;
