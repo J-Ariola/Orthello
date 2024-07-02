@@ -3,6 +3,7 @@
 
 #include "Player.hpp"
 #include "BoardCoordinateUtils.cpp"
+#include "Coordinates.hpp"
 #include <iostream>
 #include <cstring>
 #include <cctype>
@@ -52,26 +53,26 @@ class GameManager {
     std::string AskPlayerForPlacementCoordinates(const std::shared_ptr<Player> &current_player_ptr);
     bool InsertPlayerPieceByCoordinates(const std::string &placement_coordinates_string, 
       const std::shared_ptr<Player> &current_player_ptr, 
-      const bool ignore_placement_rules = true);
+      const bool ignore_placement_rules = false);
     bool InsertPieceByIndex(int row, int column, char piece);
-    std::vector<BoardCoordinateUtils::coordinates> GetCurrentPlayerPlacedCoordinates(const std::shared_ptr<Player> &current_player_ptr);
-    std::vector<BoardCoordinateUtils::coordinates> GetPossiblePlacementCoordinates(const std::shared_ptr<Player> &current_player_ptr, 
-      const std::vector<BoardCoordinateUtils::coordinates> &placed_coordinates);
+    std::vector<coordinates> GetCurrentPlayerPlacedCoordinates(const std::shared_ptr<Player> &current_player_ptr);
+    std::vector<coordinates> GetPossiblePlacementCoordinates(const std::shared_ptr<Player> &current_player_ptr, 
+      const std::vector<coordinates> &placed_coordinates);
     bool AddCoordinatesByIncrementDirection(
-      std::vector<BoardCoordinateUtils::coordinates> &possible_to_place_coordinates, 
-      const BoardCoordinateUtils::coordinates &startingCoordinates, 
+      std::vector<coordinates> &possible_to_place_coordinates, 
+      const coordinates &startingCoordinates, 
       const char &current_player_piece,
       const char &opposing_player_piece,
       const int increment_col_val = 0, 
       const int increment_row_val = 0
     );
-    std::vector<BoardCoordinateUtils::coordinates> GetPiecesToFlipCoordinates (const BoardCoordinateUtils::coordinates &placed_coordinates,
+    std::vector<coordinates> GetPiecesToFlipCoordinates (const coordinates &placed_coordinates,
       const char &current_player_piece,
       const char &opposing_player_piece,
       const int increment_row_val = 0, 
       const int increment_col_val = 0
       );
-    bool PrintVectorOfCoordinates (const std::vector<BoardCoordinateUtils::coordinates> &vec);
+    bool PrintVectorOfCoordinates (const std::vector<coordinates> &vec);
 };
 
 
